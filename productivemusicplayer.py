@@ -11,9 +11,8 @@ from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
-from textual.screen import ModalScreen
 from textual.widgets import (
-    Button, DirectoryTree, Footer, Header, Label,
+    Button, Footer, Header, Label,
     ListItem, ListView, ProgressBar, Static,
 )
 
@@ -159,49 +158,6 @@ class Player:
         self._instance.release()
 
 
-# -- Directory Picker ---------------------------------------------------------
-
-
-class DirectoryPickerScreen(ModalScreen[Path | None]):
-    BINDINGS = [Binding("escape", "cancel", "Cancel")]
-
-    CSS = """
-    DirectoryPickerScreen { align: center middle; }
-    #picker-container { width: 80%; height: 80%; border: thick $primary; background: $surface; padding: 1 2; }
-    #picker-title { text-style: bold; margin-bottom: 1; }
-    #picker-tree { height: 1fr; }
-    #picker-buttons { layout: horizontal; height: auto; margin-top: 1; align: center middle; }
-    #picker-buttons Button { margin: 0 2; }
-    """
-
-    def __init__(self, start_path: str | None = None) -> None:
-        super().__init__()
-        self._start = start_path or str(Path.home())
-
-    def compose(self) -> ComposeResult:
-        with Vertical(id="picker-container"):
-            yield Static("Select a folder with music files:", id="picker-title")
-            yield DirectoryTree(self._start, id="picker-tree")
-            with Horizontal(id="picker-buttons"):
-                yield Button("Open This Folder", variant="primary", id="btn-open-folder")
-                yield Button("Cancel", variant="default", id="btn-cancel-picker")
-
-    @on(DirectoryTree.DirectorySelected)
-    def _dir_selected(self, event: DirectoryTree.DirectorySelected) -> None:
-        self._selected_path = event.path
-
-    @on(Button.Pressed, "#btn-open-folder")
-    def _open_folder(self) -> None:
-        self.dismiss(getattr(self, "_selected_path", Path(self._start)))
-
-    @on(Button.Pressed, "#btn-cancel-picker")
-    def _cancel(self) -> None:
-        self.dismiss(None)
-
-    def action_cancel(self) -> None:
-        self.dismiss(None)
-
-
 # -- Main App -----------------------------------------------------------------
 
 
@@ -222,7 +178,6 @@ class ProductiveMusicPlayer(App):
         Binding("p", "prev_track", "Prev"),
         Binding("s", "toggle_shuffle", "Shuffle"),
         Binding("c", "toggle_compressor", "Compressor"),
-        Binding("o", "open_dir", "Open folder"),
         Binding("right", "seek(5000)", "Seek +5s", priority=True),
         Binding("left", "seek(-5000)", "Seek -5s", priority=True),
         *[Binding(str(i + 1), f"preset({i})", f"{p:.1f}x", show=False) for i, p in enumerate(SPEED_PRESETS)],
@@ -237,7 +192,6 @@ class ProductiveMusicPlayer(App):
         self._shuffle: bool = True
         self._shuffle_order: list[int] = []
         self._shuffle_pos: int = 0
-        self._last_dir: str = str(Path.home())
         self._initial_dir = music_dir
 
     def compose(self) -> ComposeResult:
@@ -267,7 +221,7 @@ class ProductiveMusicPlayer(App):
                 yield Button(f"x{preset:.1f}", classes="speed-preset", id=f"speed-preset-{i}")
         yield Static(
             "space=Play/Pause  \\[]/\\[]=Speed  up/down=Vol  n/p=Track  "
-            "s=Shuffle  c=Compressor  1-6=Presets  o=Open  ctrl+q=Quit",
+            "s=Shuffle  c=Compressor  1-6=Presets  ctrl+q=Quit",
             id="shortcuts-help",
         )
         yield Footer()
@@ -351,7 +305,6 @@ class ProductiveMusicPlayer(App):
 
     def _load_directory(self, path: Path) -> None:
         self._tracks = scan_audio_files(path)
-        self._last_dir = str(path)
         self._reshuffle()
         self._shuffle_pos = 0
         lv = self.query_one("#track-list", ListView)
@@ -474,13 +427,6 @@ class ProductiveMusicPlayer(App):
 
     def action_seek(self, delta_ms: int = 5000) -> None:
         self._player.seek_relative(delta_ms)
-
-    def action_open_dir(self) -> None:
-        self.push_screen(DirectoryPickerScreen(self._last_dir), self._dir_picked)
-
-    def _dir_picked(self, path: Path | None) -> None:
-        if path is not None:
-            self._load_directory(path)
 
     def action_preset(self, index: int) -> None:
         if 0 <= index < len(SPEED_PRESETS):

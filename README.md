@@ -50,5 +50,4 @@ python productivemusicplayer.py myfolder
 | Right / Left | Seek +5s / -5s |
 | S | Toggle shuffle |
 | C | Toggle compressor |
-| O | Open folder |
 | Ctrl+Q | Quit |
