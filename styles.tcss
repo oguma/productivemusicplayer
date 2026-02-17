@@ -1,0 +1,143 @@
+Screen {
+    layout: grid;
+    grid-size: 2 3;
+    grid-columns: 1fr 2fr;
+    grid-rows: 1fr auto auto;
+}
+
+#playlist-panel {
+    border: solid $primary;
+    height: 100%;
+}
+
+#playlist-panel > Static {
+    padding: 0 1;
+    color: $text-muted;
+    text-style: bold;
+}
+
+#track-list {
+    height: 1fr;
+}
+
+#track-list > .list-item {
+    padding: 0 1;
+}
+
+#track-list:focus > .list-item.-highlight {
+    background: $primary;
+}
+
+#now-playing-panel {
+    border: solid $secondary;
+    height: 100%;
+    padding: 0 2;
+}
+
+#track-title {
+    text-style: bold;
+    color: $text;
+}
+
+#state-label {
+    margin-top: 1;
+}
+
+#time-row {
+    layout: horizontal;
+    height: auto;
+}
+
+#time-current {
+    width: auto;
+    margin-right: 1;
+}
+
+#time-total {
+    width: auto;
+    margin-left: 1;
+}
+
+#progress-bar {
+    width: 1fr;
+}
+
+ProgressBar Bar {
+    width: 1fr;
+}
+
+ProgressBar PercentageStatus {
+    display: none;
+}
+
+#status-row {
+    layout: horizontal;
+    height: auto;
+}
+
+#shuffle-label {
+    color: $text-muted;
+    margin-right: 2;
+}
+
+#shuffle-label.-on {
+    color: dodgerblue;
+    text-style: bold;
+}
+
+#compressor-label {
+    color: $text-muted;
+}
+
+#compressor-label.-on {
+    color: $success;
+    text-style: bold;
+}
+
+#speed-display {
+    text-style: bold;
+    color: $warning;
+}
+
+#volume-display {
+    color: $text;
+}
+
+#controls-row {
+    layout: horizontal;
+    height: auto;
+    margin-top: 1;
+}
+
+#controls-row Button {
+    margin: 0 1 0 0;
+    min-width: 6;
+}
+
+#bottom-bar {
+    column-span: 2;
+    layout: horizontal;
+    height: auto;
+    background: $surface;
+    padding: 0 2;
+    align: center middle;
+}
+
+.speed-preset {
+    margin: 0 0 0 1;
+    min-width: 8;
+}
+
+.speed-preset.-active {
+    background: $warning;
+    color: $text;
+    text-style: bold;
+}
+
+#shortcuts-help {
+    column-span: 2;
+    background: $surface-darken-1;
+    color: $text-muted;
+    padding: 0 2;
+    text-align: center;
+}
